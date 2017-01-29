@@ -21,19 +21,19 @@ public class Configuration {
      * Fields defined in the application.properties.
      */
     private final int port;
-    private final String message;
+    private final String broadcastMessage;
 
     public Configuration(@Value("${drone.port}") final int port,
-                         @Value("${drone.message}") final String message) {
+                         @Value("${drone.broadcastMessage}") final String broadcastMessage) {
         this.port = port;
-        this.message = message;
+        this.broadcastMessage = broadcastMessage;
     }
 
-    int getPort() {
+    public int getPort() {
         return port;
     }
 
-    String getMessage() {
-        return message;
+    public String getBroadcastMessage() {
+        return broadcastMessage;
     }
 }

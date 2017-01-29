@@ -54,7 +54,7 @@ public class DiscoveringUDPThread implements Runnable {
             //Check if the message is correct
             final String message = new String(receivePacket.getData()).trim();
 
-            if (message.equals(configuration.getMessage())) {
+            if (message.equals(configuration.getBroadcastMessage())) {
                 logger.info(receivePacket.getAddress());
             }
             //Close the port!
@@ -139,7 +139,7 @@ public class DiscoveringUDPThread implements Runnable {
      * @throws IOException error connected with sending the package.
      */
     private DatagramPacket sendPackage() throws IOException {
-        byte[] sendData = configuration.getMessage().getBytes();
+        byte[] sendData = configuration.getBroadcastMessage().getBytes();
 
         DatagramPacket sendPacket = new DatagramPacket(
                 sendData,
