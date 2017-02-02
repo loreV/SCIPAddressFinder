@@ -14,7 +14,7 @@ public class Application {
 
 
     @Autowired
-    public Application(final DiscoverableUDPThread discoverableUDPThread) {
+    public Application(final DiscoverableThread discoverableUDPThread) {
         final Thread discoveryThread = new Thread(discoverableUDPThread);
         discoveryThread.start();
     }

@@ -19,14 +19,14 @@ import java.util.Enumeration;
  * Discovering Thread making use of the UDP protocol to detect devices of interest on the same network.
  */
 @Component
-public class DiscoveringUDPThread implements Runnable {
+public class DiscoveringThread implements Runnable {
 
     private final Configuration configuration;
     private final Logger logger;
     private DatagramSocket datagramSocket;
 
     @Autowired
-    protected DiscoveringUDPThread(final Configuration configuration) {
+    protected DiscoveringThread(final Configuration configuration) {
         this.configuration = configuration;
         logger = Logger.getLogger(this.getClass());
     }
@@ -35,7 +35,7 @@ public class DiscoveringUDPThread implements Runnable {
         // Find the server using UDP broadcast
         try {
             initializeDatagramSocket();
-            DatagramPacket datagramPacket = sendPackage();
+            final DatagramPacket datagramPacket = sendPackage();
 
             logger.info(String.format("%s >>> Request packet sent to: %s (DEFAULT)",
                     getClass().getName(),
@@ -73,12 +73,10 @@ public class DiscoveringUDPThread implements Runnable {
      * @return cleaned String.
      */
     private String normalizedReceivedData(final DatagramPacket receivePacket) {
-        String dataReturned = Normalizer.normalize(
+        return Normalizer.normalize(
                 new String(receivePacket.getData()),
                 Normalizer.Form.NFKD
-        );
-        dataReturned = dataReturned.replaceAll("\\p{C}", "");
-        return dataReturned;
+        ).replaceAll("\\p{C}", "");
     }
 
     /**
@@ -89,7 +87,7 @@ public class DiscoveringUDPThread implements Runnable {
      */
     private DatagramPacket getResponse() throws IOException {
         byte[] receivedBuffer = new byte[Configuration.BUFFER_BYTE_SIZE];
-        DatagramPacket receivePacket = new DatagramPacket(receivedBuffer, receivedBuffer.length);
+        final DatagramPacket receivePacket = new DatagramPacket(receivedBuffer, receivedBuffer.length);
         datagramSocket.receive(receivePacket);
         return receivePacket;
     }
@@ -99,9 +97,10 @@ public class DiscoveringUDPThread implements Runnable {
      */
     private void broadCastMessage(final byte[] dataForBroadCast) throws IOException {
 
-        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 
         while (interfaces.hasMoreElements()) {
+
             final NetworkInterface networkInterface = interfaces.nextElement();
 
             if (networkInterface.isLoopback() || !networkInterface.isUp()) {
@@ -109,26 +108,40 @@ public class DiscoveringUDPThread implements Runnable {
             }
 
             for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
-                InetAddress broadcast = interfaceAddress.getBroadcast();
-                if (broadcast == null) {
-                    continue;
-                }
-
-                final DatagramPacket sendPacket = new DatagramPacket(
-                        dataForBroadCast,
-                        dataForBroadCast.length,
-                        broadcast,
-                        configuration.getPort());
-
-                datagramSocket.send(sendPacket);
-
-                logger.trace(
-                        String.format("%s >>> Request packet sent to: %s; Interface: %s",
-                                getClass().getName(),
-                                broadcast.getHostAddress(),
-                                networkInterface.getDisplayName()));
+                sendDatagramPackageOnBroadCast(dataForBroadCast, networkInterface, interfaceAddress);
             }
         }
+    }
+
+    /**
+     *
+     * @param dataForBroadCast bytes (chars) to be broad casted.
+     * @param networkInterface network interface.
+     * @param interfaceAddress network interface address.
+     * @throws IOException output error.
+     */
+    private void sendDatagramPackageOnBroadCast(byte[] dataForBroadCast,
+                                                final NetworkInterface networkInterface,
+                                                final InterfaceAddress interfaceAddress) throws IOException {
+        final InetAddress broadcast = interfaceAddress.getBroadcast();
+
+        if (broadcast == null) {
+            return;
+        }
+
+        final DatagramPacket sendPacket = new DatagramPacket(
+                dataForBroadCast,
+                dataForBroadCast.length,
+                broadcast,
+                configuration.getPort());
+
+        datagramSocket.send(sendPacket);
+
+        logger.trace(
+                String.format("%s >>> Request packet sent to: %s; Interface: %s",
+                        getClass().getName(),
+                        broadcast.getHostAddress(),
+                        networkInterface.getDisplayName()));
     }
 
     /**
@@ -141,7 +154,7 @@ public class DiscoveringUDPThread implements Runnable {
     private DatagramPacket sendPackage() throws IOException {
         byte[] sendData = configuration.getBroadcastMessage().getBytes();
 
-        DatagramPacket sendPacket = new DatagramPacket(
+        final DatagramPacket sendPacket = new DatagramPacket(
                 sendData,
                 sendData.length,
                 InetAddress.getByName(Configuration.BROADCAST_ADDRESS),

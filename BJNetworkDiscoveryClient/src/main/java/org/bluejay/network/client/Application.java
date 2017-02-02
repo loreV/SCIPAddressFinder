@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Configuration;
 public class Application {
 
     @Autowired
-    public Application(final DiscoveringUDPThread discoveringUDPThread) {
-        Thread discoveryThread = new Thread(discoveringUDPThread);
+    public Application(final DiscoveringThread discoveringThread) {
+        Thread discoveryThread = new Thread(discoveringThread);
         discoveryThread.start();
     }
 

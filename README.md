@@ -16,4 +16,5 @@ To install all the dependencies:
 
 ### Todo 
 
-- Finish writing up the unit test
+- Unit tests
+- Consider adding support to spring integration (easier testing and more decoupled)

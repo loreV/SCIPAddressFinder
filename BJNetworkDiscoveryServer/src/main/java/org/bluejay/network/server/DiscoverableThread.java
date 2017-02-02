@@ -15,7 +15,7 @@ import java.net.UnknownHostException;
  * Discoverable thread used to receive and inform the client about BlueJay presence in the network.
  */
 @Component
-public class DiscoverableUDPThread implements Runnable {
+public class DiscoverableThread implements Runnable {
 
 
     private final Configuration conf;
@@ -23,7 +23,7 @@ public class DiscoverableUDPThread implements Runnable {
     private final Logger logger;
 
     @Autowired
-    public DiscoverableUDPThread(final Configuration configuration) {
+    public DiscoverableThread(final Configuration configuration) {
         logger = Logger.getLogger(this.getClass());
         conf = configuration;
     }
@@ -49,13 +49,7 @@ public class DiscoverableUDPThread implements Runnable {
                         packet.getAddress().getHostAddress()));
 
                 if (verifyEqualityMessageReceived(packet)) {
-                    final DatagramPacket sentDatagram = sendResponse(packet);
-                    logger.info(
-                            String.format("%s >>>Sent packet to: %s",
-                                    getClass().getName(),
-                                    sentDatagram.getAddress().getHostAddress()
-                            )
-                    );
+                    sendDatagramPacket(packet);
                 }
             }
         } catch (final SocketException ioException) {
@@ -65,6 +59,16 @@ public class DiscoverableUDPThread implements Runnable {
         } catch (final IOException ioException) {
             ioException.printStackTrace();
         }
+    }
+
+    private void sendDatagramPacket(final DatagramPacket packet) throws IOException {
+        final DatagramPacket sentDatagram = sendResponse(packet);
+        logger.info(
+                String.format("%s >>>Sent packet to: %s",
+                        getClass().getName(),
+                        sentDatagram.getAddress().getHostAddress()
+                )
+        );
     }
 
     /**
@@ -84,11 +88,11 @@ public class DiscoverableUDPThread implements Runnable {
      *
      * @param packet to be sent
      * @return the sent package
-     * @throws IOException
+     * @throws IOException exception thrown on output.
      */
     private DatagramPacket sendResponse(final DatagramPacket packet) throws IOException {
         byte[] sendData = conf.getName().getBytes();
-        DatagramPacket sendPacket = new DatagramPacket(
+        final DatagramPacket sendPacket = new DatagramPacket(
                 sendData,
                 sendData.length,
                 packet.getAddress(),
@@ -101,7 +105,7 @@ public class DiscoverableUDPThread implements Runnable {
      * Makes a datagram packet from a buffer a datagram packet and returns it.
      *
      * @return DatagramPacket received.
-     * @throws IOException
+     * @throws IOException exception thrown on output.
      */
     private DatagramPacket getDatagramPacket() throws IOException {
         //Receive a packet
@@ -115,11 +119,11 @@ public class DiscoverableUDPThread implements Runnable {
     /**
      * Initialize a datagram socket (port, broadcast and initial address).
      *
-     * @throws SocketException
-     * @throws UnknownHostException
+     * @throws SocketException      error when creating the socket.
+     * @throws UnknownHostException error thrown when the host is not known
      */
     private DatagramSocket initializeDatagramSocket() throws SocketException, UnknownHostException {
-        //Keep a socket open to listen to all the UDP trafic that is destined for this port
+        //Keep a socket open to listen to all the UDP traffic that is destined for this port
         datagramSocket = new DatagramSocket(conf.getPORT(), InetAddress.getByName(Configuration.HOST_INITIAL_ADDRESS));
         datagramSocket.setBroadcast(Configuration.IS_TO_BE_BROADCAST);
         return datagramSocket;
