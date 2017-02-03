@@ -37,8 +37,7 @@ public class DiscoveringThread implements Runnable {
             initializeDatagramSocket();
             final DatagramPacket datagramPacket = sendPackage();
 
-            logger.info(String.format("%s >>> Request packet sent to: %s (DEFAULT)",
-                    getClass().getName(),
+            logger.info(String.format("Request packet sent to: %s (DEFAULT)",
                     Configuration.BROADCAST_ADDRESS));
 
             broadCastMessage(datagramPacket.getData());
@@ -48,9 +47,11 @@ public class DiscoveringThread implements Runnable {
             //We have a response
             final String dataReturned = normalizedReceivedData(receivePacket);
 
-            logger.info(String.format("%s >>> Broadcast response from BlueJay: %s",
-                    receivePacket.getAddress().getHostAddress(),
-                    dataReturned));
+
+            logger.info(String.format("[RESULT] Broadcast response from BlueJay with name: %s and ip address: %s ",
+                    dataReturned,
+                    receivePacket.getAddress().getHostAddress()
+            ));
             //Check if the message is correct
             final String message = new String(receivePacket.getData()).trim();
 
@@ -114,7 +115,6 @@ public class DiscoveringThread implements Runnable {
     }
 
     /**
-     *
      * @param dataForBroadCast bytes (chars) to be broad casted.
      * @param networkInterface network interface.
      * @param interfaceAddress network interface address.
@@ -122,7 +122,8 @@ public class DiscoveringThread implements Runnable {
      */
     private void sendDatagramPackageOnBroadCast(byte[] dataForBroadCast,
                                                 final NetworkInterface networkInterface,
-                                                final InterfaceAddress interfaceAddress) throws IOException {
+                                                final InterfaceAddress interfaceAddress)
+            throws IOException {
         final InetAddress broadcast = interfaceAddress.getBroadcast();
 
         if (broadcast == null) {
