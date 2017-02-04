@@ -16,7 +16,7 @@ public class Configuration {
     static final boolean FLAG_CONTINUE = true;
     static final boolean IS_TO_BE_BROADCAST = true;
     static final String HOST_INITIAL_ADDRESS = "0.0.0.0";
-    public static final int BUFFER_BYTE_SIZE = 15000;
+    static final int BUFFER_BYTE_SIZE = 15000;
 
     /**
      * Fields defined in the application.properties.

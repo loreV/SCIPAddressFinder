@@ -4,23 +4,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 /**
- * Application entry-point.
+ * Server entry-point.
  */
 @Configuration
 @ComponentScan
-public class Application {
+@PropertySource("file:${user.home}/preferences/application.properties")
+public class Server {
 
 
     @Autowired
-    public Application(final DiscoverableThread discoverableUDPThread) {
+    public Server(final DiscoverableThread discoverableUDPThread) {
         final Thread discoveryThread = new Thread(discoverableUDPThread);
         discoveryThread.start();
     }
 
     public static void main(final String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(Server.class, args);
     }
 
 }

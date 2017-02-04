@@ -97,7 +97,6 @@ public class DiscoveringThread implements Runnable {
     /**
      * Broadcast the message over all the network interfaces.
      */
-
     private void broadCastMessage(final byte[] dataForBroadCast) throws IOException {
 
         final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -117,6 +116,7 @@ public class DiscoveringThread implements Runnable {
     }
 
     /**
+     *
      * @param dataForBroadCast bytes (chars) to be broad casted.
      * @param networkInterface network interface.
      * @param interfaceAddress network interface address.
