@@ -21,6 +21,7 @@ import java.util.Enumeration;
 @Component
 public class DiscoveringThread implements Runnable {
 
+    public static final int TIMEOUT = 1000;
     private final Configuration configuration;
     private final Logger logger;
     private DatagramSocket datagramSocket;
@@ -37,10 +38,7 @@ public class DiscoveringThread implements Runnable {
             initializeDatagramSocket();
             final DatagramPacket datagramPacket = sendPackage();
 
-            logger.info(String.format("%s >>> Request packet sent to: %s (DEFAULT)",
-                    getClass().getName(),
-                    Configuration.BROADCAST_ADDRESS));
-
+            // Request packet sent to configuration broadcast address.
             broadCastMessage(datagramPacket.getData());
 
             //Wait for a response
@@ -48,9 +46,9 @@ public class DiscoveringThread implements Runnable {
             //We have a response
             final String dataReturned = normalizedReceivedData(receivePacket);
 
-            logger.info(String.format("%s >>> Broadcast response from BlueJay: %s",
-                    receivePacket.getAddress().getHostAddress(),
-                    dataReturned));
+            logger.info(String.format("[Detection]%s-%s",
+                    dataReturned,
+                    receivePacket.getAddress().getHostAddress()));
             //Check if the message is correct
             final String message = new String(receivePacket.getData()).trim();
 
@@ -58,6 +56,7 @@ public class DiscoveringThread implements Runnable {
                 logger.info(receivePacket.getAddress());
             }
             //Close the port!
+
             datagramSocket.close();
         } catch (final IOException ex) {
             logger.error(ex.getMessage());
@@ -80,21 +79,25 @@ public class DiscoveringThread implements Runnable {
     }
 
     /**
-     * Receives the response back from the server.
+     * Receives the response back from the server. The timeout is set by the user.
      *
      * @return DatagramPacket as a response.
      * @throws IOException when input error occurs.
      */
     private DatagramPacket getResponse() throws IOException {
+        datagramSocket.setSoTimeout(TIMEOUT);
         byte[] receivedBuffer = new byte[Configuration.BUFFER_BYTE_SIZE];
-        final DatagramPacket receivePacket = new DatagramPacket(receivedBuffer, receivedBuffer.length);
-        datagramSocket.receive(receivePacket);
-        return receivePacket;
+        while (true) {
+            final DatagramPacket receivePacket = new DatagramPacket(receivedBuffer, receivedBuffer.length);
+            datagramSocket.receive(receivePacket);
+            return receivePacket;
+        }
     }
 
     /**
      * Broadcast the message over all the network interfaces.
      */
+
     private void broadCastMessage(final byte[] dataForBroadCast) throws IOException {
 
         final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -114,7 +117,6 @@ public class DiscoveringThread implements Runnable {
     }
 
     /**
-     *
      * @param dataForBroadCast bytes (chars) to be broad casted.
      * @param networkInterface network interface.
      * @param interfaceAddress network interface address.
@@ -136,12 +138,6 @@ public class DiscoveringThread implements Runnable {
                 configuration.getPort());
 
         datagramSocket.send(sendPacket);
-
-        logger.trace(
-                String.format("%s >>> Request packet sent to: %s; Interface: %s",
-                        getClass().getName(),
-                        broadcast.getHostAddress(),
-                        networkInterface.getDisplayName()));
     }
 
     /**
