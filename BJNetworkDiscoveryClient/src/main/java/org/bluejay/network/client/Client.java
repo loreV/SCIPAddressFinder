@@ -8,14 +8,14 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Scanner;
 
 /**
- * Application entry-point.
+ * Client entry-point.
  */
 @Configuration
 @ComponentScan
-public class Application {
+public class Client {
 
     @Autowired
-    public Application(final DiscoveringThread discoveringThread) {
+    public Client(final DiscoveringThread discoveringThread) {
 
         final Scanner scanner = new Scanner(System.in);
         System.out.println("Hit a key or press [ENTER] to scan the network for BlueJay(s)");
@@ -38,6 +38,6 @@ public class Application {
 
 
     public static void main(final String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(Client.class, args);
     }
 }
