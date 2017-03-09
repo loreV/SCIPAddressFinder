@@ -19,8 +19,8 @@ public class DiscoverableThread implements Runnable {
 
 
     private final Configuration conf;
-    private DatagramSocket datagramSocket;
     private final Logger logger;
+    private DatagramSocket datagramSocket;
 
     @Autowired
     public DiscoverableThread(final Configuration configuration) {
@@ -88,7 +88,7 @@ public class DiscoverableThread implements Runnable {
      *
      * @param packet to be sent
      * @return the sent package
-     * @throws IOException exception thrown on output.
+     * @throws IOException exception thrown on outputter.
      */
     private DatagramPacket sendResponse(final DatagramPacket packet) throws IOException {
         byte[] sendData = conf.getName().getBytes();
@@ -105,7 +105,7 @@ public class DiscoverableThread implements Runnable {
      * Makes a datagram packet from a buffer a datagram packet and returns it.
      *
      * @return DatagramPacket received.
-     * @throws IOException exception thrown on output.
+     * @throws IOException exception thrown on outputter.
      */
     private DatagramPacket getDatagramPacket() throws IOException {
         //Receive a packet

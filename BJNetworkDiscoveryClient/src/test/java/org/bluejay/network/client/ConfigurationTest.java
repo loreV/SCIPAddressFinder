@@ -12,7 +12,7 @@ public class ConfigurationTest {
     private final Configuration candidateConfiguration;
 
     public ConfigurationTest() {
-        candidateConfiguration = new Configuration(8888, "TestMessage");
+        candidateConfiguration = new Configuration(8888, "TestMessage", "C://");
     }
 
     @Test

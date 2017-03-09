@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
  * Configuration class loading in the data from properties if provided.
  */
 @Component
-class Configuration {
+public class Configuration {
 
     /**
      * Constants in the application.
@@ -23,6 +23,8 @@ class Configuration {
     static final String BROADCAST_ADDRESS = "255.255.255.255";
     static final int BUFFER_BYTE_SIZE = 15000;
 
+
+    private final String pathForOutput;
     /**
      * Field defined in the application.properties.
      */
@@ -40,7 +42,11 @@ class Configuration {
      * @param message     message broadcasted and in the need for matching.
      */
     Configuration(@Value("${drone.port}") final int networkPort,
-                  @Value("${drone.message}") final String message) {
+                  @Value("${drone.message}") final String message,
+                  @Value("${drone.path}") final String path)
+
+    {
+        this.pathForOutput = path;
         this.port = networkPort;
         this.broadcastMessage = message;
     }
@@ -61,5 +67,9 @@ class Configuration {
      */
     String getBroadcastMessage() {
         return broadcastMessage;
+    }
+
+    public String getPathForOutput() {
+        return pathForOutput;
     }
 }

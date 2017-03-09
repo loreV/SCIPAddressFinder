@@ -2,6 +2,8 @@ package org.bluejay.network.client;
 
 
 import org.apache.log4j.Logger;
+import org.bluejay.network.client.outputter.FileOuputter;
+import org.bluejay.network.client.outputter.IOutputter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,7 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.text.Normalizer;
+import java.util.Arrays;
 import java.util.Enumeration;
 
 /**
@@ -24,11 +27,13 @@ public class DiscoveringThread implements Runnable {
     public static final int TIMEOUT = 1000;
     private final Configuration configuration;
     private final Logger logger;
+    private final IOutputter outputter;
     private DatagramSocket datagramSocket;
 
     @Autowired
-    protected DiscoveringThread(final Configuration configuration) {
-        this.configuration = configuration;
+    protected DiscoveringThread(final Configuration conf, final FileOuputter outputter) {
+        this.configuration = conf;
+        this.outputter = outputter;
         logger = Logger.getLogger(this.getClass());
     }
 
@@ -46,17 +51,16 @@ public class DiscoveringThread implements Runnable {
             //We have a response
             final String dataReturned = normalizedReceivedData(receivePacket);
 
-            logger.info(String.format("[Detection]%s-%s",
+            final String detectionString = String.format("[Detection]%s-%s",
                     dataReturned,
-                    receivePacket.getAddress().getHostAddress()));
-            //Check if the message is correct
-            final String message = new String(receivePacket.getData()).trim();
+                    receivePacket.getAddress().getHostAddress());
 
-            if (message.equals(configuration.getBroadcastMessage())) {
-                logger.info(receivePacket.getAddress());
-            }
+            logger.info(detectionString);
+
+            outputter.output(Arrays.asList(detectionString));
+
+
             //Close the port!
-
             datagramSocket.close();
         } catch (final IOException ex) {
             logger.error(ex.getMessage());
@@ -116,11 +120,10 @@ public class DiscoveringThread implements Runnable {
     }
 
     /**
-     *
      * @param dataForBroadCast bytes (chars) to be broad casted.
      * @param networkInterface network interface.
      * @param interfaceAddress network interface address.
-     * @throws IOException output error.
+     * @throws IOException outputter error.
      */
     private void sendDatagramPackageOnBroadCast(byte[] dataForBroadCast,
                                                 final NetworkInterface networkInterface,

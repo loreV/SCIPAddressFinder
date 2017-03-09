@@ -14,20 +14,27 @@ import java.util.Scanner;
 @ComponentScan
 public class Client {
 
+    /**
+     * Starts the client.
+     *
+     * @param discoveringThread thread for discoverying new pi instances.
+     */
     @Autowired
     public Client(final DiscoveringThread discoveringThread) {
 
         final Scanner scanner = new Scanner(System.in);
-        System.out.println("Hit a key or press [ENTER] to scan the network for BlueJay(s)");
+
+        System.out.println("Hit a key or press [ENTER] "
+                + "to scan the network for BlueJay(s)");
 
         String readLine = scanner.nextLine();
+
 
         while (readLine != null) {
             if (readLine.isEmpty()) {
                 final Thread discoveryThread = new Thread(discoveringThread);
                 discoveryThread.start();
             }
-
             if (scanner.hasNextLine()) {
                 readLine = scanner.nextLine();
             } else {
@@ -36,7 +43,11 @@ public class Client {
         }
     }
 
-
+    /**
+     * Entry point to the application.
+     *
+     * @param args starting string arguments.
+     */
     public static void main(final String[] args) {
         SpringApplication.run(Client.class, args);
     }
